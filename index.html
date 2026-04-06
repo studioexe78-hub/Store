@@ -3,48 +3,55 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Computer Store | متجر الكمبيوتر العصري</title>
+    <title>Computer Store | المتجر المتكامل</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
-        body { font-family: 'Tajawal', sans-serif; background-color: #0f172a; color: white; }
-        
-        /* تأثير حركي عند ظهور البطاقات */
-        .product-card { transition: all 0.3s ease; }
-        .product-card:hover { transform: translateY(-10px); border-color: #3b82f6; box-shadow: 0 20px 25px -5px rgba(59, 130, 246, 0.1); }
-        
-        /* شكل زر السلة المتحرك */
-        .cart-badge { animation: pulse 2s infinite; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+        body { font-family: 'Tajawal', sans-serif; background-color: #0f172a; color: white; transition: all 0.3s; }
+        .product-card:hover { transform: translateY(-8px); border-color: #3b82f6; }
+        .modal-bg { background: rgba(0,0,0,0.8); backdrop-blur: 5px; }
+        .hidden { display: none; }
     </style>
 </head>
-<body class="min-h-screen">
+<body class="pb-10">
 
-    <header class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-md border-b border-slate-800 p-4 shadow-lg">
+    <header class="sticky top-0 z-40 bg-slate-900/90 border-b border-slate-800 p-4">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-2xl font-bold bg-gradient-to-l from-blue-400 to-cyan-300 bg-clip-text text-transparent">Computer Store</h1>
-            
-            <button class="cart-badge relative bg-blue-600 hover:bg-blue-700 px-5 py-2 rounded-full font-bold flex items-center gap-2 transition">
-                <span>سلة المشتريات</span>
-                <span id="cartCount" class="bg-white text-blue-600 rounded-full px-2 text-sm">0</span>
+            <h1 class="text-xl font-bold text-blue-400">Computer Store</h1>
+            <button onclick="toggleCart()" class="relative bg-blue-600 px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 transition">
+                🛒 السلة
+                <span id="cartCount" class="bg-white text-blue-600 rounded-full px-2 text-xs">0</span>
             </button>
         </div>
     </header>
 
-    <section class="container mx-auto py-16 px-4 text-center">
-        <h2 class="text-4xl md:text-5xl font-bold mb-4">أهلاً بك في متجرنا العصري</h2>
-        <p class="text-slate-400 text-lg max-w-2xl mx-auto">أفضل قطع الكمبيوتر والاكسسوارات بأسعار منافسة وجودة مضمونة.</p>
-    </section>
-
-    <main class="container mx-auto px-4 pb-20">
-        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-            <div class="col-span-full text-center py-20 text-slate-500 italic">جاري تحميل أحدث القطع...</div>
+    <main class="container mx-auto px-4 mt-10">
+        <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+            <p class="col-span-full text-center text-slate-500 italic">جاري تحميل المنتجات...</p>
         </div>
     </main>
 
-    <footer class="bg-slate-900 border-t border-slate-800 py-10 text-center">
-        <p class="text-slate-500">© 2026 جميع الحقوق محفوظة لمتجرك الذكي</p>
-    </section>
+    <div id="cartModal" class="fixed inset-0 z-50 modal-bg hidden flex justify-center items-center p-4">
+        <div class="bg-slate-900 w-full max-w-lg rounded-2xl border border-slate-800 p-6 shadow-2xl">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-3">
+                <h2 class="text-xl font-bold text-blue-400">مشترياتك</h2>
+                <button onclick="toggleCart()" class="text-slate-500 hover:text-white text-2xl">&times;</button>
+            </div>
+            
+            <div id="cartItemsList" class="space-y-4 max-h-60 overflow-y-auto mb-6 pr-2">
+                </div>
+
+            <div class="border-t border-slate-800 pt-4 space-y-3">
+                <div class="flex justify-between font-bold text-lg">
+                    <span>المجموع الإجمالي:</span>
+                    <span class="text-green-400 font-mono" id="totalPrice">$0</span>
+                </div>
+                <button onclick="sendOrder()" class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-xl font-bold transition flex justify-center items-center gap-2">
+                    تأكيد الطلب عبر واتساب 💬
+                </button>
+            </div>
+        </div>
+    </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
@@ -62,42 +69,92 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // جلب المنتجات وعرضها بشكل حي (Real-time)
+        // --- نظام السلة ---
+        let cart = [];
+
+        window.toggleCart = () => {
+            document.getElementById('cartModal').classList.toggle('hidden');
+            renderCart();
+        };
+
+        window.addToCart = (name, price) => {
+            const index = cart.findIndex(item => item.name === name);
+            if(index > -1) {
+                cart[index].qty += 1;
+            } else {
+                cart.push({ name, price, qty: 1 });
+            }
+            updateCartUI();
+        };
+
+        function updateCartUI() {
+            const count = cart.reduce((acc, item) => acc + item.qty, 0);
+            document.getElementById('cartCount').innerText = count;
+        }
+
+        function renderCart() {
+            const container = document.getElementById('cartItemsList');
+            const totalEl = document.getElementById('totalPrice');
+            container.innerHTML = cart.length === 0 ? "<p class='text-center text-slate-500'>السلة فارغة</p>" : "";
+            
+            let total = 0;
+            cart.forEach((item, index) => {
+                total += (item.price * item.qty);
+                container.innerHTML += `
+                    <div class="flex justify-between items-center bg-slate-800 p-3 rounded-lg">
+                        <div>
+                            <p class="font-bold text-sm">${item.name}</p>
+                            <p class="text-xs text-blue-400">$${item.price} × ${item.qty}</p>
+                        </div>
+                        <button onclick="removeFromCart(${index})" class="text-red-500 text-sm">حذف</button>
+                    </div>
+                `;
+            });
+            totalEl.innerText = `$${total}`;
+        }
+
+        window.removeFromCart = (index) => {
+            cart.splice(index, 1);
+            renderCart();
+            updateCartUI();
+        };
+
+        window.sendOrder = () => {
+            if(cart.length === 0) return alert("السلة فارغة!");
+            let msg = "طلب جديد من المتجر:\n";
+            let total = 0;
+            cart.forEach(item => {
+                msg += `- ${item.name} (${item.qty} قطعة)\n`;
+                total += (item.price * item.qty);
+            });
+            msg += `\nالمجموع الإجمالي: $${total}`;
+            window.open(`https://wa.me/963997160904?text=${encodeURIComponent(msg)}`); // ضع رقمك هنا بدل X
+        };
+
+        // --- جلب المنتجات ---
         const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
-        
         onSnapshot(q, (snapshot) => {
             const grid = document.getElementById('productsGrid');
-            grid.innerHTML = ""; // مسح رسالة التحميل
-
+            grid.innerHTML = "";
             snapshot.forEach((doc) => {
                 const item = doc.data();
-                const stockStatus = item.stock > 0 
-                    ? `<span class="text-green-400 text-xs font-bold">متوفر: ${item.stock} قطع</span>`
-                    : `<span class="text-red-500 text-xs font-bold">نفدت الكمية</span>`;
-
+                const isAvailable = item.stock > 0;
                 grid.innerHTML += `
-                    <div class="product-card bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden flex flex-col h-full group">
-                        <div class="relative overflow-hidden aspect-video">
-                            <img src="${item.image}" class="w-full h-full object-cover group-hover:scale-110 transition duration-500" alt="${item.name}">
-                            <div class="absolute top-3 left-3 bg-blue-600/90 backdrop-blur-sm px-3 py-1 rounded-full text-xs font-bold shadow-lg">
-                                ${item.category}
-                            </div>
-                        </div>
-
-                        <div class="p-6 flex flex-col flex-grow">
+                    <div class="product-card bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col h-full border">
+                        <img src="${item.image}" class="h-48 w-full object-cover">
+                        <div class="p-5 flex flex-col flex-grow">
                             <div class="flex justify-between items-start mb-2">
-                                <h3 class="text-lg font-bold text-white group-hover:text-blue-400 transition">${item.name}</h3>
-                                ${stockStatus}
+                                <h3 class="font-bold text-white">${item.name}</h3>
+                                <span class="${isAvailable ? 'text-green-500' : 'text-red-500'} text-xs">
+                                    ${isAvailable ? 'متوفر: ' + item.stock : 'نفذت'}
+                                </span>
                             </div>
-                            
-                            <div class="mt-auto pt-4 flex items-center justify-between">
-                                <span class="text-2xl font-bold text-blue-400 font-mono">$${item.price}</span>
-                                <button 
-                                    onclick="addToCart('${item.name}', ${item.price})" 
-                                    class="${item.stock > 0 ? 'bg-slate-800 hover:bg-blue-600' : 'bg-slate-800 opacity-50 cursor-not-allowed'} px-4 py-2 rounded-xl transition font-bold text-sm"
-                                    ${item.stock > 0 ? '' : 'disabled'}
-                                >
-                                    ${item.stock > 0 ? 'إضافة للسلة' : 'غير متوفر'}
+                            <div class="mt-auto flex justify-between items-center">
+                                <span class="text-xl font-bold text-blue-400">$${item.price}</span>
+                                <button onclick="addToCart('${item.name}', ${item.price})" 
+                                    class="${isAvailable ? 'bg-blue-600 hover:bg-blue-700' : 'bg-slate-700 opacity-50 cursor-not-allowed'} px-3 py-2 rounded-lg text-sm font-bold"
+                                    ${isAvailable ? '' : 'disabled'}>
+                                    إضافة
                                 </button>
                             </div>
                         </div>
@@ -105,14 +162,6 @@
                 `;
             });
         });
-
-        // وظيفة السلة (بسيطة للعرض)
-        let count = 0;
-        window.addToCart = (name, price) => {
-            count++;
-            document.getElementById('cartCount').innerText = count;
-            alert(`تمت إضافة ${name} للسلة بقيمة $${price}`);
-        };
     </script>
 </body>
 </html>
