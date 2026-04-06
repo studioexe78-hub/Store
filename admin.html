@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>لوحة التحكم المؤمنة - إدارة المتجر</title>
+    <title>لوحة التحكم الشاملة - إدارة المتجر</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
@@ -11,70 +11,55 @@
         .loader { border-top-color: #3b82f6; animation: spinner 1s linear infinite; }
         @keyframes spinner { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
         .hidden { display: none; }
+        .custom-scrollbar::-webkit-scrollbar { width: 5px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: #1e293b; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #3b82f6; border-radius: 10px; }
     </style>
 </head>
 <body class="p-5 flex justify-center items-center min-h-screen">
 
     <div id="loginBox" class="w-full max-w-md bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-2xl">
-        <h2 class="text-2xl font-bold mb-6 text-center text-blue-400">تسجيل دخول الإدارة</h2>
+        <h2 class="text-2xl font-bold mb-6 text-center text-blue-400">دخول الإدارة الآمن</h2>
         <div class="space-y-4">
-            <div>
-                <label class="block text-xs text-slate-500 mb-1">البريد الإلكتروني</label>
-                <input type="email" id="userEmail" placeholder="admin@example.com" class="w-full bg-slate-800 p-3 rounded-lg border border-slate-700 outline-none focus:border-blue-500 transition text-left" dir="ltr">
-            </div>
-            <div>
-                <label class="block text-xs text-slate-500 mb-1">كلمة المرور</label>
-                <input type="password" id="userPass" placeholder="••••••••" class="w-full bg-slate-800 p-3 rounded-lg border border-slate-700 outline-none focus:border-blue-500 transition text-left" dir="ltr">
-            </div>
-            <button onclick="checkLogin()" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl font-bold transition">دخول آمن</button>
+            <input type="email" id="userEmail" placeholder="البريد الإلكتروني" class="w-full bg-slate-800 p-3 rounded-lg border border-slate-700 outline-none focus:border-blue-500 text-left" dir="ltr">
+            <input type="password" id="userPass" placeholder="كلمة المرور" class="w-full bg-slate-800 p-3 rounded-lg border border-slate-700 outline-none focus:border-blue-500 text-left" dir="ltr">
+            <button onclick="checkLogin()" id="loginBtn" class="w-full bg-blue-600 hover:bg-blue-700 py-3 rounded-xl font-bold transition">دخول</button>
         </div>
     </div>
 
-    <div id="adminPanel" class="hidden w-full max-w-xl bg-slate-900 p-8 rounded-2xl border border-slate-800 shadow-2xl">
+    <div id="adminPanel" class="hidden w-full max-w-2xl bg-slate-900 p-6 md:p-8 rounded-2xl border border-slate-800 shadow-2xl my-10">
         <div class="flex justify-between items-center mb-8 border-b border-slate-800 pb-4">
-            <h1 class="text-xl font-bold text-blue-400">إضافة منتج جديد</h1>
-            <button onclick="logout()" class="bg-red-900/30 text-red-400 px-3 py-1 rounded-lg text-xs hover:bg-red-900/50 transition">تسجيل خروج</button>
+            <h1 class="text-xl font-bold text-blue-400">لوحة إدارة المنتجات</h1>
+            <button onclick="logout()" class="text-red-400 text-sm hover:underline">تسجيل خروج</button>
         </div>
 
-        <div class="space-y-5">
-            <div>
-                <label class="block text-xs text-slate-500 mb-1">اسم المنتج</label>
-                <input type="text" id="pName" placeholder="مثلاً: سماعة محيطية RGB" class="w-full bg-slate-800 p-3 rounded-lg border border-slate-700 outline-none focus:border-blue-500">
-            </div>
-            
-            <div class="grid grid-cols-2 gap-4">
-                <div>
-                    <label class="block text-xs text-slate-500 mb-1">السعر (ل.س)</label>
-                    <input type="number" id="pPrice" placeholder="250000" class="w-full bg-slate-800 p-3 rounded-lg border border-slate-700 outline-none focus:border-blue-500">
-                </div>
-                <div>
-                    <label class="block text-xs text-slate-500 mb-1">القسم</label>
-                    <input type="text" id="pCategory" placeholder="سماعات" class="w-full bg-slate-800 p-3 rounded-lg border border-slate-700 outline-none focus:border-blue-500">
+        <div class="space-y-4 bg-slate-800/50 p-6 rounded-xl border border-slate-700 mb-10">
+            <h2 class="text-lg font-bold mb-4 text-white">➕ إضافة قطعة جديدة</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <input type="text" id="pName" placeholder="اسم المنتج" class="bg-slate-800 p-3 rounded-lg border border-slate-700 outline-none focus:border-blue-500">
+                <input type="number" id="pPrice" placeholder="السعر" class="bg-slate-800 p-3 rounded-lg border border-slate-700 outline-none focus:border-blue-500">
+                <input type="text" id="pCategory" placeholder="القسم (ماوسات، كيبوردات...)" class="bg-slate-800 p-3 rounded-lg border border-slate-700 outline-none focus:border-blue-500">
+                <div class="relative bg-slate-700 p-3 rounded-lg text-center border-2 border-dashed border-slate-500 hover:border-blue-400 transition">
+                    <input type="file" id="pFile" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
+                    <span id="fileStatus" class="text-xs text-slate-300">📸 اختر صورة من الجهاز</span>
                 </div>
             </div>
+            <button onclick="uploadAndSave()" id="saveBtn" class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-xl font-bold transition mt-2">حفظ ونشر المنتج</button>
+        </div>
 
-            <div class="bg-slate-800 p-6 rounded-xl border-2 border-dashed border-slate-700 text-center hover:border-blue-500 transition relative">
-                <input type="file" id="pFile" accept="image/*" class="absolute inset-0 opacity-0 cursor-pointer">
-                <div id="fileStatus">
-                    <p class="text-3xl mb-2">📸</p>
-                    <p class="text-sm text-slate-400">اضغط لاختيار صورة المنتج</p>
-                </div>
+        <div class="mt-8">
+            <h2 class="text-lg font-bold mb-4 text-blue-300">📦 المنتجات الحالية (للحذف والتعديل)</h2>
+            <div id="adminProductsList" class="space-y-3 max-h-96 overflow-y-auto pr-2 custom-scrollbar">
+                <p class="text-slate-500 italic text-center py-4 text-sm">جاري جلب المنتجات...</p>
             </div>
-
-            <button onclick="uploadAndSave()" id="saveBtn" class="w-full bg-green-600 hover:bg-green-700 py-4 rounded-xl font-bold transition flex items-center justify-center gap-2">
-                <span>حفظ المنتج في المتجر</span>
-            </button>
-            
-            <p id="msg" class="text-center text-green-400 hidden font-bold mt-2 animate-bounce">✅ تم الحفظ بنجاح!</p>
         </div>
     </div>
 
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-        import { getFirestore, collection, addDoc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
         import { getAuth, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
-        // إعدادات Firebase الخاصة بك
         const firebaseConfig = {
             apiKey: "AIzaSyBc_PLFbR1U2P7ADA2NKH_CC7Nhop0C7qg",
             authDomain: "computer-store-12162.firebaseapp.com",
@@ -96,55 +81,89 @@
             if (user) {
                 loginBox.classList.add('hidden');
                 adminPanel.classList.remove('hidden');
+                loadAdminProducts(); // تحميل المنتجات للحذف
             } else {
                 loginBox.classList.remove('hidden');
                 adminPanel.classList.add('hidden');
             }
         });
 
-        // 2. وظيفة تسجيل الدخول
+        // 2. تسجيل الدخول
         window.checkLogin = async () => {
             const email = document.getElementById('userEmail').value;
             const pass = document.getElementById('userPass').value;
-            const btn = document.getElementById('loginBtn');
-
-            if(!email || !pass) return alert("يرجى إدخال البيانات");
-
-            btn.innerText = "جاري التحقق...";
-            btn.disabled = true;
-
             try {
                 await signInWithEmailAndPassword(auth, email, pass);
             } catch (error) {
-                alert("خطأ: " + error.message);
-                btn.innerText = "دخول آمن";
-                btn.disabled = false;
+                alert("بيانات الدخول غير صحيحة");
             }
         };
 
-        // 3. وظيفة تسجيل الخروج
+        // 3. تسجيل الخروج
         window.logout = () => signOut(auth);
 
-        // 4. تحديث شكل رفع الملف
-        document.getElementById('pFile').onchange = function() {
-            if(this.files[0]) document.getElementById('fileStatus').innerHTML = "✅ جاهز: " + this.files[0].name;
+        // 4. جلب المنتجات مع زر الحذف
+        async function loadAdminProducts() {
+            const listContainer = document.getElementById('adminProductsList');
+            try {
+                const querySnapshot = await getDocs(collection(db, "products"));
+                listContainer.innerHTML = "";
+                
+                if (querySnapshot.empty) {
+                    listContainer.innerHTML = "<p class='text-center text-slate-500'>لا يوجد منتجات حالياً</p>";
+                }
+
+                querySnapshot.forEach((documentRef) => {
+                    const p = documentRef.data();
+                    const id = documentRef.id;
+                    listContainer.innerHTML += `
+                        <div class="flex justify-between items-center bg-slate-800 p-3 rounded-lg border border-slate-700 hover:border-slate-600 transition">
+                            <div class="flex items-center gap-3">
+                                <img src="${p.image}" class="w-12 h-12 rounded object-cover border border-slate-600">
+                                <div>
+                                    <p class="font-bold text-sm">${p.name}</p>
+                                    <p class="text-xs text-green-400">${p.price} ل.س</p>
+                                </div>
+                            </div>
+                            <button onclick="deleteProduct('${id}')" class="bg-red-500/20 text-red-500 hover:bg-red-500 hover:text-white px-3 py-1 rounded text-xs transition">حذف 🗑️</button>
+                        </div>
+                    `;
+                });
+            } catch (e) {
+                listContainer.innerHTML = "خطأ في تحميل البيانات";
+            }
+        }
+
+        // 5. وظيفة الحذف
+        window.deleteProduct = async (id) => {
+            if(!confirm("هل أنت متأكد من حذف هذا المنتج؟ لا يمكن التراجع!")) return;
+            try {
+                await deleteDoc(doc(db, "products", id));
+                alert("تم الحذف بنجاح!");
+                loadAdminProducts();
+            } catch (e) {
+                alert("فشل الحذف: " + e.message);
+            }
         };
 
-        // 5. رفع الصورة وحفظ المنتج
+        // 6. رفع الصورة وحفظ المنتج
+        document.getElementById('pFile').onchange = function() {
+            if(this.files[0]) document.getElementById('fileStatus').innerText = "✅ " + this.files[0].name;
+        };
+
         window.uploadAndSave = async () => {
             const fileInput = document.getElementById('pFile');
             const name = document.getElementById('pName').value;
             const price = document.getElementById('pPrice').value;
             const category = document.getElementById('pCategory').value;
 
-            if(!fileInput.files[0] || !name || !price) return alert("يرجى ملء الحقول واختيار صورة");
+            if(!fileInput.files[0] || !name || !price) return alert("يرجى إكمال البيانات");
 
             const btn = document.getElementById('saveBtn');
-            btn.innerHTML = `<div class="loader w-5 h-5 border-2 rounded-full border-white/30 border-t-white mr-2"></div> جاري الرفع...`;
+            btn.innerHTML = `<div class="loader w-4 h-4 border-2 rounded-full border-t-transparent inline-block mr-2"></div> جاري الحفظ...`;
             btn.disabled = true;
 
             try {
-                // رفع الصورة لـ ImgBB
                 let formData = new FormData();
                 formData.append("image", fileInput.files[0]);
 
@@ -155,21 +174,15 @@
                 const imgData = await imgRes.json();
                 const imageUrl = imgData.data.url;
 
-                // حفظ البيانات في Firestore
                 await addDoc(collection(db, "products"), {
-                    name,
-                    price,
-                    category,
-                    image: imageUrl,
-                    createdAt: new Date()
+                    name, price, category, image: imageUrl, createdAt: new Date()
                 });
 
-                document.getElementById('msg').classList.remove('hidden');
-                setTimeout(() => location.reload(), 2000);
-
-            } catch (error) {
-                alert("فشل الحفظ: " + error.message);
-                btn.innerText = "حفظ المنتج في المتجر";
+                alert("تمت الإضافة بنجاح!");
+                location.reload();
+            } catch (e) {
+                alert("خطأ: " + e.message);
+                btn.innerText = "حفظ ونشر المنتج";
                 btn.disabled = false;
             }
         };
