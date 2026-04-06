@@ -7,18 +7,20 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700&display=swap');
-        body { font-family: 'Tajawal', sans-serif; background-color: #0f172a; color: white; transition: all 0.3s; }
+        body { font-family: 'Tajawal', sans-serif; background-color: #0f172a; color: white; }
+        .product-card { transition: all 0.3s ease; }
         .product-card:hover { transform: translateY(-8px); border-color: #3b82f6; }
-        .modal-bg { background: rgba(0,0,0,0.8); backdrop-blur: 5px; }
+        .modal-bg { background: rgba(0,0,0,0.85); backdrop-blur: 8px; }
         .hidden { display: none; }
+        input, select { background-color: #1e293b !important; color: white !important; border: 1px solid #334155 !important; }
     </style>
 </head>
 <body class="pb-10">
 
-    <header class="sticky top-0 z-40 bg-slate-900/90 border-b border-slate-800 p-4">
+    <header class="sticky top-0 z-40 bg-slate-900/90 border-b border-slate-800 p-4 backdrop-blur-md">
         <div class="container mx-auto flex justify-between items-center">
-            <h1 class="text-xl font-bold text-blue-400">Computer Store</h1>
-            <button onclick="toggleCart()" class="relative bg-blue-600 px-4 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 transition">
+            <h1 class="text-2xl font-bold bg-gradient-to-r from-blue-400 to-cyan-400 bg-clip-text text-transparent">Computer Store</h1>
+            <button onclick="toggleCart()" class="relative bg-blue-600 px-5 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 transition shadow-lg shadow-blue-900/20">
                 🛒 السلة
                 <span id="cartCount" class="bg-white text-blue-600 rounded-full px-2 text-xs">0</span>
             </button>
@@ -27,28 +29,41 @@
 
     <main class="container mx-auto px-4 mt-10">
         <div id="productsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-            <p class="col-span-full text-center text-slate-500 italic">جاري تحميل المنتجات...</p>
+            <p class="col-span-full text-center text-slate-500 italic py-20">جاري تحميل أحدث المنتجات...</p>
         </div>
     </main>
 
-    <div id="cartModal" class="fixed inset-0 z-50 modal-bg hidden flex justify-center items-center p-4">
-        <div class="bg-slate-900 w-full max-w-lg rounded-2xl border border-slate-800 p-6 shadow-2xl">
-            <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-3">
-                <h2 class="text-xl font-bold text-blue-400">مشترياتك</h2>
-                <button onclick="toggleCart()" class="text-slate-500 hover:text-white text-2xl">&times;</button>
+    <div id="cartModal" class="fixed inset-0 z-50 modal-bg hidden flex justify-center items-center p-4 overflow-y-auto">
+        <div class="bg-slate-900 w-full max-w-xl rounded-3xl border border-slate-800 p-6 md:p-8 shadow-2xl my-auto">
+            <div class="flex justify-between items-center mb-6 border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-bold text-blue-400">تأكيد الطلب</h2>
+                <button onclick="toggleCart()" class="text-slate-500 hover:text-white text-3xl">&times;</button>
             </div>
             
-            <div id="cartItemsList" class="space-y-4 max-h-60 overflow-y-auto mb-6 pr-2">
+            <div id="cartItemsList" class="space-y-3 max-h-48 overflow-y-auto mb-6 pr-2 custom-scrollbar">
                 </div>
 
-            <div class="border-t border-slate-800 pt-4 space-y-3">
-                <div class="flex justify-between font-bold text-lg">
-                    <span>المجموع الإجمالي:</span>
-                    <span class="text-green-400 font-mono" id="totalPrice">$0</span>
+            <div id="orderForm" class="space-y-4 border-t border-slate-800 pt-6">
+                <h3 class="text-lg font-bold text-slate-300">عنوان التسليم</h3>
+                <div class="grid grid-cols-2 gap-3">
+                    <input type="text" id="custCity" placeholder="المحافظة" class="w-full p-3 rounded-xl outline-none focus:border-blue-500">
+                    <input type="text" id="custArea" placeholder="المنطقة" class="w-full p-3 rounded-xl outline-none focus:border-blue-500">
                 </div>
-                <button onclick="sendOrder()" class="w-full bg-green-600 hover:bg-green-700 py-3 rounded-xl font-bold transition flex justify-center items-center gap-2">
-                    تأكيد الطلب عبر واتساب 💬
-                </button>
+                <input type="text" id="custStreet" placeholder="الشارع / العلامة المميزة" class="w-full p-3 rounded-xl outline-none focus:border-blue-500">
+                <input type="text" id="custBuild" placeholder="اسم البناية / الطابق (اختياري)" class="w-full p-3 rounded-xl outline-none focus:border-blue-500">
+                
+                <h3 class="text-lg font-bold text-slate-300 pt-2">طريقة الدفع</h3>
+                <select id="payMethod" class="w-full p-3 rounded-xl outline-none focus:border-blue-500 cursor-pointer">
+                    <option value="دفع عند الاستلام">دفع عند الاستلام 💵</option>
+                    <option value="شام كاش">شام كاش 💳</option>
+                </select>
+
+                <div class="pt-4 border-t border-slate-800 flex justify-between items-center">
+                    <div class="text-sm text-slate-400">المجموع النهائي: <span id="totalPrice" class="text-2xl font-bold text-green-400 block">$0</span></div>
+                    <button onclick="sendOrder()" class="bg-green-600 hover:bg-green-700 text-white px-8 py-4 rounded-2xl font-bold transition-all transform hover:scale-105">
+                        إرسال عبر واتساب 💬
+                    </button>
+                </div>
             </div>
         </div>
     </div>
@@ -73,8 +88,9 @@
         let cart = [];
 
         window.toggleCart = () => {
-            document.getElementById('cartModal').classList.toggle('hidden');
-            renderCart();
+            const modal = document.getElementById('cartModal');
+            modal.classList.toggle('hidden');
+            if(!modal.classList.contains('hidden')) renderCart();
         };
 
         window.addToCart = (name, price) => {
@@ -95,18 +111,18 @@
         function renderCart() {
             const container = document.getElementById('cartItemsList');
             const totalEl = document.getElementById('totalPrice');
-            container.innerHTML = cart.length === 0 ? "<p class='text-center text-slate-500'>السلة فارغة</p>" : "";
+            container.innerHTML = cart.length === 0 ? "<p class='text-center text-slate-500 py-4'>السلة فارغة حالياً</p>" : "";
             
             let total = 0;
             cart.forEach((item, index) => {
                 total += (item.price * item.qty);
                 container.innerHTML += `
-                    <div class="flex justify-between items-center bg-slate-800 p-3 rounded-lg">
+                    <div class="flex justify-between items-center bg-slate-800/50 p-4 rounded-2xl border border-slate-700/50">
                         <div>
-                            <p class="font-bold text-sm">${item.name}</p>
-                            <p class="text-xs text-blue-400">$${item.price} × ${item.qty}</p>
+                            <p class="font-bold text-sm text-white">${item.name}</p>
+                            <p class="text-xs text-blue-400 font-mono">$${item.price} × ${item.qty}</p>
                         </div>
-                        <button onclick="removeFromCart(${index})" class="text-red-500 text-sm">حذف</button>
+                        <button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-300 text-sm font-bold bg-red-400/10 px-3 py-1 rounded-lg">حذف</button>
                     </div>
                 `;
             });
@@ -120,18 +136,38 @@
         };
 
         window.sendOrder = () => {
+            const city = document.getElementById('custCity').value;
+            const area = document.getElementById('custArea').value;
+            const street = document.getElementById('custStreet').value;
+            const build = document.getElementById('custBuild').value || "غير محدد";
+            const pay = document.getElementById('payMethod').value;
+
             if(cart.length === 0) return alert("السلة فارغة!");
-            let msg = "طلب جديد من المتجر:\n";
+            if(!city || !area || !street) return alert("يرجى ملء بيانات العنوان (المحافظة، المنطقة، الشارع)");
+
+            let msg = "🚀 *طلب جديد من متجر الكمبيوتر* 🚀\n\n";
+            msg += "📦 *المنتجات:*\n";
             let total = 0;
             cart.forEach(item => {
-                msg += `- ${item.name} (${item.qty} قطعة)\n`;
+                msg += `- ${item.name} (${item.qty} قطعة) ➔ $${item.price * item.qty}\n`;
                 total += (item.price * item.qty);
             });
-            msg += `\nالمجموع الإجمالي: $${total}`;
-            window.open(`https://wa.me/963997160904?text=${encodeURIComponent(msg)}`); // ضع رقمك هنا بدل X
+            
+            msg += `\n💰 *المجموع الإجمالي:* $${total}`;
+            msg += `\n\n📍 *عنوان التسليم:*`;
+            msg += `\n- المحافظة: ${city}`;
+            msg += `\n- المنطقة: ${area}`;
+            msg += `\n- الشارع: ${street}`;
+            msg += `\n- البناية: ${build}`;
+            msg += `\n\n💳 *طريقة الدفع:* ${pay}`;
+            msg += `\n\n--- شكراً لاختياركم متجرنا ---`;
+
+            const phone = "963997160904";
+            const whatsappUrl = `https://wa.me/${phone}?text=${encodeURIComponent(msg)}`;
+            window.open(whatsappUrl, '_blank');
         };
 
-        // --- جلب المنتجات ---
+        // --- جلب المنتجات (Real-time) ---
         const q = query(collection(db, "products"), orderBy("createdAt", "desc"));
         onSnapshot(q, (snapshot) => {
             const grid = document.getElementById('productsGrid');
@@ -140,21 +176,21 @@
                 const item = doc.data();
                 const isAvailable = item.stock > 0;
                 grid.innerHTML += `
-                    <div class="product-card bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden flex flex-col h-full border">
-                        <img src="${item.image}" class="h-48 w-full object-cover">
-                        <div class="p-5 flex flex-col flex-grow">
-                            <div class="flex justify-between items-start mb-2">
-                                <h3 class="font-bold text-white">${item.name}</h3>
-                                <span class="${isAvailable ? 'text-green-500' : 'text-red-500'} text-xs">
+                    <div class="product-card bg-slate-900 border border-slate-800 rounded-3xl overflow-hidden flex flex-col h-full shadow-xl">
+                        <img src="${item.image}" class="h-52 w-full object-cover">
+                        <div class="p-6 flex flex-col flex-grow">
+                            <div class="flex justify-between items-start mb-3">
+                                <h3 class="font-bold text-white text-lg">${item.name}</h3>
+                                <span class="px-2 py-1 rounded-md text-[10px] font-bold ${isAvailable ? 'bg-green-500/10 text-green-500' : 'bg-red-500/10 text-red-500'}">
                                     ${isAvailable ? 'متوفر: ' + item.stock : 'نفذت'}
                                 </span>
                             </div>
-                            <div class="mt-auto flex justify-between items-center">
-                                <span class="text-xl font-bold text-blue-400">$${item.price}</span>
+                            <div class="mt-auto flex justify-between items-center pt-4 border-t border-slate-800/50">
+                                <span class="text-2xl font-bold text-blue-400 font-mono">$${item.price}</span>
                                 <button onclick="addToCart('${item.name}', ${item.price})" 
-                                    class="${isAvailable ? 'bg-blue-600 hover:bg-blue-700' : 'bg-slate-700 opacity-50 cursor-not-allowed'} px-3 py-2 rounded-lg text-sm font-bold"
+                                    class="${isAvailable ? 'bg-blue-600 hover:bg-blue-700 shadow-blue-900/40 hover:scale-105' : 'bg-slate-700 opacity-50 cursor-not-allowed'} px-4 py-2 rounded-xl text-sm font-bold transition-all"
                                     ${isAvailable ? '' : 'disabled'}>
-                                    إضافة
+                                    إضافة للسلة
                                 </button>
                             </div>
                         </div>
